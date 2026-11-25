@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background-color: #faf8f5;
+            color: #1a1a1a;
+            cursor: none;
+            font-family: 'Geist Pixel', 'Geist Mono', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 0 24px;
+            text-align: left;
+            line-height: 1.6;
+            position: relative;
+            z-index: 10;
+        }
+
+        .container p {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Retro text selection */
+        ::selection {
+            background-color: #1a1a1a;
+            color: #faf8f5;
+        }
+
+        ::-moz-selection {
+            background-color: #1a1a1a;
+            color: #faf8f5;
+        }
+
+        /* Custom Dropdown */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            margin-bottom: 24px;
+            user-select: none;
+        }
+
+        .dropdown-selected {
+            background-color: #ffffff;
+            border: 1px solid #d1d1d1;
+            padding: 12px 16px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .dropdown-selected:hover {
+            border-color: #1a1a1a;
+        }
+
+        .selected-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-arrow {
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid #1a1a1a;
+            border-bottom: 2px solid #1a1a1a;
+            transform: rotate(45deg);
+            margin-top: -4px;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .custom-dropdown.open .dropdown-arrow {
+            transform: rotate(-135deg);
+            margin-top: 4px;
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            border: 1px solid #d1d1d1;
+            border-top: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+            z-index: 20;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .dropdown-options::-webkit-scrollbar {
+            display: none;
+        }
+
+        .custom-dropdown.open .dropdown-options {
+            max-height: 320px;
+            overflow-y: auto;
+            border-top: 1px solid #d1d1d1;
+        }
+
+        .dropdown-option {
+            padding: 12px 16px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.15s ease;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f2efe9;
+        }
+
+        .dropdown-option.active {
+            background-color: #ebe7e0;
+        }
+
+        .language-emoji {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        /* Next Button */
+        .next-btn {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-family: 'Geist Pixel', 'Geist Mono', monospace;
+            font-size: 1rem;
+            cursor: none;
+            transition: opacity 0.15s ease;
+            display: inline-block;
+        }
+
+        .next-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 32px;
+            height: 32px;
+            background-image: url('images/cursor.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, 0%);
+            will-change: transform;
+            display: block;
+        }
+
+        .custom-cursor.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p id="greeting">Greetings! Select your language</p>
+
+        <div class="custom-dropdown" id="languageDropdown">
+            <div class="dropdown-selected">
+                <span class="selected-label" id="selectedLabel">
+                    <span class="language-emoji">🇬🇧</span> English
+                </span>
+                <div class="dropdown-arrow"></div>
+            </div>
+            <div class="dropdown-options" id="dropdownOptions"></div>
+        </div>
+
+        <button class="next-btn" id="nextBtn">Next</button>
+    </div>
+
+    <div class="custom-cursor" id="cursor"></div>
+
+    <script>
+        /* ---------- Language data ---------- */
+        const languages = [
+            { code: 'en', emoji: '🇬🇧', name: 'English',  greeting: 'Greetings! Select your language',              next: 'Next' },
+            { code: 'nl', emoji: '🇳🇱', name: 'Dutch',    greeting: 'Hallo daar! Kies je taal',                     next: 'Volgende' },
+            { code: 'es', emoji: '🇪🇸', name: 'Spanish',  greeting: '¡Saludos! Elige tu idioma',                    next: 'Siguiente' },
+            { code: 'fr', emoji: '🇫🇷', name: 'French',   greeting: 'Salutations! Choisissez votre langue',         next: 'Suivant' },
+            { code: 'de', emoji: '🇩🇪', name: 'German',   greeting: 'Grüße! Wähle deine Sprache',                   next: 'Weiter' },
+            { code: 'zh', emoji: '🇨🇳', name: 'Chinese',  greeting: '你好！请选择你的语言',                          next: '下一步' },
+            { code: 'ja', emoji: '🇯🇵', name: 'Japanese', greeting: 'こんにちは！言語を選択してください',              next: '次へ' }
+        ];
+
+        const dropdown      = document.getElementById('languageDropdown');
+        const optionsList   = document.getElementById('dropdownOptions');
+        const selectedLabel = document.getElementById('selectedLabel');
+        const greeting      = document.getElementById('greeting');
+        const nextBtn       = document.getElementById('nextBtn');
+
+        let current = 'en';
+
+        /* ---------- Build options ---------- */
+        languages.forEach(lang => {
+            const option = document.createElement('div');
+            option.className = 'dropdown-option' + (lang.code === current ? ' active' : '');
+            option.dataset.code = lang.code;
+            option.innerHTML = `<span class="language-emoji">${lang.emoji}</span> ${lang.name}`;
+            optionsList.appendChild(option);
+        });
+
+        /* ---------- Apply language ---------- */
+        function setLanguage(code) {
+            const lang = languages.find(l => l.code === code);
+            if (!lang) return;
+
+            current = code;
+            document.documentElement.lang = code;
+
+            selectedLabel.innerHTML = `<span class="language-emoji">${lang.emoji}</span> ${lang.name}`;
+            greeting.textContent = lang.greeting;
+            nextBtn.textContent  = lang.next;
+
+            optionsList.querySelectorAll('.dropdown-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.code === code);
+            });
+        }
+
+        /* ---------- Dropdown behaviour ---------- */
+        dropdown.querySelector('.dropdown-selected').addEventListener('click', () => {
+            dropdown.classList.toggle('open');
+        });
+
+        optionsList.addEventListener('click', (e) => {
+            const option = e.target.closest('.dropdown-option');
+            if (!option) return;
+            e.stopPropagation();
+            setLanguage(option.dataset.code);
+            dropdown.classList.remove('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+        });
+
+        /* ---------- Next Button Redirect ---------- */
+        nextBtn.addEventListener('click', () => {
+            window.location.href = 'home.html';
+        });
+
+        /* ---------- Disable right-click ---------- */
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        /* ---------- Cursor (Fixed Teleport) ---------- */
+        const cursor = document.getElementById('cursor');
+        
+        // Start off-screen so it doesn't spawn in the middle of the page
+        let mouseX = -1000;
+        let mouseY = -1000;
+        let cursorX = -1000;
+        let cursorY = -1000;
+        let isFirstMove = true;
+        const ease = 0.15;
+
+        document.addEventListener('mousemove', (e) => {
+            // Snap instantly on the very first movement to prevent gliding from off-screen
+            if (isFirstMove) {
+                cursorX = e.clientX;
+                cursorY = e.clientY;
+                isFirstMove = false;
+            }
+            
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursor.classList.remove('hidden');
+        });
+
+        document.documentElement.addEventListener('pointerleave', () => {
+            cursor.classList.add('hidden');
+        });
+
+        document.documentElement.addEventListener('pointerenter', () => {
+            cursor.classList.remove('hidden');
+        });
+
+        window.addEventListener('blur', () => {
+            cursor.classList.add('hidden');
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * ease;
+            cursorY += (mouseY - cursorY) * ease;
+            cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, 0%)`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+    </script>
+</body>
+</html>
