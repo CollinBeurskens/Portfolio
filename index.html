@@ -15,39 +15,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
 
     <style>
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            /* Prevent dragging of any element (text, images, etc.) */
             -webkit-user-drag: none;
             user-drag: none;
         }
 
-        /* Root level scrollbar hiding to prevent browser-level scrollbar bugs */
+        /* ---------- Root Configuration ---------- */
+        :root {
+            --cursor-image: url('images/cursor.png');
+            --cursor-click-image: url('images/click.png');
+
+            --cursor-width: 48px;
+            --cursor-height: 48px;
+
+            /* Adjust the actual click position */
+            --cursor-hotspot-x: 10px;
+            --cursor-hotspot-y: -30px;
+        }
+
+        /* ---------- Scrollbar ---------- */
         html {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             overflow-x: hidden;
             overflow-y: auto;
         }
 
         html::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
         }
 
+        /* ---------- Body ---------- */
         body {
-            width: 100%; /* Changed from 100vw to prevent horizontal overflow when scrollbar appears */
+            width: 100%;
             min-height: 100vh;
             background-color: #faf8f5;
             color: #1a1a1a;
             cursor: none;
             font-family: 'Geist Pixel', 'Geist Mono', monospace;
-            
-            /* Allow vertical scrolling, strictly prevent horizontal scrolling */
+
             overflow-x: hidden;
-            overflow-y: auto; 
-            
+            overflow-y: auto;
+
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -55,16 +68,16 @@
             padding-bottom: 10vh;
         }
 
-        /* Extra safety for body scrollbar hiding */
         body::-webkit-scrollbar {
             display: none;
         }
 
-        /* Force custom cursor on all interactive elements */
+        /* ---------- Interactive Elements ---------- */
         a, button, input, textarea, select, [role="button"] {
             cursor: none !important;
         }
 
+        /* ---------- Main Container ---------- */
         .container {
             width: 100%;
             max-width: 1200px;
@@ -74,7 +87,7 @@
             z-index: 10;
         }
 
-        /* Minimalistic Typography */
+        /* ---------- Typography ---------- */
         h1 {
             font-size: 4rem;
             font-weight: 700;
@@ -90,7 +103,7 @@
             font-weight: 400;
         }
 
-        /* Bio / Description Text */
+        /* ---------- Bio ---------- */
         .bio {
             max-width: 800px;
         }
@@ -107,7 +120,7 @@
             margin-bottom: 0;
         }
 
-        /* Call to Action Button */
+        /* ---------- Call to Action ---------- */
         .cta-button {
             display: inline-block;
             margin-top: 1.5rem;
@@ -118,7 +131,7 @@
             font-size: 1.15rem;
             font-weight: 500;
             border: 1px solid #1a1a1a;
-            border-radius: 0; /* Strictly no rounded borders */
+            border-radius: 0;
             transition: all 0.2s ease;
         }
 
@@ -127,7 +140,7 @@
             color: #1a1a1a;
         }
 
-        /* New Minimalistic Sections (Matching existing bio style) */
+        /* ---------- Sections ---------- */
         .section {
             max-width: 800px;
             margin-top: 3rem;
@@ -141,7 +154,7 @@
             color: #1a1a1a;
         }
 
-        /* Socials Styling */
+        /* ---------- Socials ---------- */
         .socials-list {
             display: flex;
             flex-wrap: wrap;
@@ -161,6 +174,7 @@
             color: #1a1a1a;
         }
 
+        /* ---------- Experience ---------- */
         .experience-item {
             margin-bottom: 2rem;
         }
@@ -188,7 +202,7 @@
             color: #666;
         }
 
-        /* Retro text selection */
+        /* ---------- Text Selection ---------- */
         ::selection {
             background-color: #1a1a1a;
             color: #faf8f5;
@@ -199,34 +213,42 @@
             color: #faf8f5;
         }
 
-        /* Custom Cursor */
+        /* ---------- Custom Cursor ---------- */
         .custom-cursor {
             position: fixed;
             top: 0;
             left: 0;
-            width: 48px; 
-            height: 48px; 
-            background-image: url('images/cursor.png');
+
+            width: var(--cursor-width);
+            height: var(--cursor-height);
+
+            background-image: var(--cursor-image);
             background-size: contain;
+            background-position: top left;
             background-repeat: no-repeat;
+
             pointer-events: none;
             z-index: 99999;
-            transform: translate(-50%, 0%);
+
+            transform: translate(
+                calc(-1 * var(--cursor-hotspot-x)),
+                calc(-1 * var(--cursor-hotspot-y))
+            );
+
             will-change: transform;
             display: block;
-            transition: background-image 0.1s ease; /* Smooth image swap */
         }
 
-        /* Custom Cursor Hover State */
+        /* ---------- Cursor Hover State ---------- */
         .custom-cursor.hover {
-            background-image: url('images/click.png');
+            background-image: var(--cursor-click-image);
         }
 
         .custom-cursor.hidden {
             display: none;
         }
 
-        /* Toto Animation Container */
+        /* ---------- Toto Animation Container ---------- */
         .toto-container {
             position: fixed;
             bottom: 30px;
@@ -234,7 +256,7 @@
             width: 64px;
             height: 64px;
             z-index: 99998;
-            pointer-events: none; /* Prevents interference with custom cursor */
+            pointer-events: none;
             user-select: none;
         }
 
@@ -242,7 +264,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            -webkit-user-drag: none; /* Prevents dragging the image */
+            -webkit-user-drag: none;
             user-select: none;
         }
 
@@ -261,7 +283,7 @@
             }
         }
 
-        /* ---------- Responsive: Mobile (Hide custom cursor, restore default) ---------- */
+        /* ---------- Responsive: Mobile ---------- */
         @media (max-width: 768px) {
             body {
                 cursor: auto;
@@ -331,7 +353,6 @@
                 font-size: 0.9rem;
             }
 
-            /* Adjust Toto size slightly for mobile */
             .toto-container {
                 width: 48px;
                 height: 48px;
@@ -373,7 +394,7 @@
             }
         }
 
-        /* ---------- Hide custom cursor on touch devices ---------- */
+        /* ---------- Hide Cursor on Touch Devices ---------- */
         @media (hover: none) and (pointer: coarse) {
             body {
                 cursor: auto;
@@ -387,6 +408,7 @@
                 cursor: pointer !important;
             }
         }
+
     </style>
 </head>
 <body>
@@ -500,7 +522,7 @@
             function animateCursor() {
                 cursorX += (mouseX - cursorX) * ease;
                 cursorY += (mouseY - cursorY) * ease;
-                cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, 0%)`;
+                cursor.style.transform = `translate(${cursorX - 8}px, ${cursorY - 5}px)`;
                 requestAnimationFrame(animateCursor);
             }
             animateCursor();
