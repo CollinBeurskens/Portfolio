@@ -437,10 +437,46 @@
             }
         }
 
+        /* ---------- Loader ---------- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #faf8f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            transition: opacity 0.6s ease;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        #loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ---------- Page starts hidden, fades in ---------- */
+        body:not(.loaded) .container {
+            opacity: 0;
+        }
+
+        body:not(.loaded) .toto-container {
+            opacity: 0;
+        }
+
+        .container,
+        .toto-container {
+            transition: opacity 0.8s ease;
+        }
+
     </style>
 <base target="_blank">
 </head>
 <body>
+    <div id="loader">
+        <span>loading...</span>
+    </div>
     <div class="container">
         <h1>Collin Beurskens</h1>
         
@@ -483,6 +519,24 @@
     </div>
 
     <script>
+
+        /* ---------- Load & Fade In ---------- */
+        window.addEventListener('load', async () => {
+            // Wait for Geist Pixel font, but don't hang forever
+            await Promise.race([
+                document.fonts.ready,
+                new Promise(r => setTimeout(r, 2000))
+            ]);
+
+            // Double rAF ensures the hidden state paints first, so the fade animates
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    document.getElementById('loader').classList.add('fade-out');
+                    document.body.classList.add('loaded');
+                });
+            });
+        });
+
         /* ---------- Dynamic Age & Text Injection ---------- */
         function getAge() {
             const birthDate = new Date('2010-12-29');
