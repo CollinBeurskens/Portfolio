@@ -256,8 +256,9 @@
             width: 64px;
             height: 64px;
             z-index: 99998;
-            pointer-events: none;
+            pointer-events: auto;
             user-select: none;
+            cursor: none;
         }
 
         .toto-image {
@@ -266,6 +267,33 @@
             object-fit: contain;
             -webkit-user-drag: none;
             user-select: none;
+        }
+
+        /* ---------- Toto Bark Popup ---------- */
+        .bark-popup {
+            position: fixed;
+            z-index: 99999;
+            font-size: 0.85rem;
+            color: #1a1a1a;
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+            animation: bark-float 1.2s ease-out forwards;
+        }
+
+        @keyframes bark-float {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 0) scale(0.6);
+            }
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -10px) scale(1.1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(calc(-50% + var(--drift)), -70px) scale(1);
+            }
         }
 
         /* ---------- Responsive: Tablet ---------- */
@@ -410,6 +438,7 @@
         }
 
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="container">
@@ -554,6 +583,24 @@
             totoIndex = (totoIndex + 1) % totoImages.length;
             totoImageEl.src = totoImages[totoIndex];
         }, 300);
+
+        /* ---------- Toto Bark on Click ---------- */
+        const barks = ['bark!', 'woof!', 'arf!', '<3', 'woof woof!', '*tail wag*', 'bork!', 'ruff!'];
+
+        document.querySelector('.toto-container').addEventListener('click', () => {
+            const popup = document.createElement('span');
+            popup.className = 'bark-popup';
+            popup.textContent = barks[Math.floor(Math.random() * barks.length)];
+
+            const rect = totoImageEl.getBoundingClientRect();
+            popup.style.left = `${rect.left + rect.width / 2}px`;
+            popup.style.top = `${rect.top - 6}px`;
+            popup.style.setProperty('--drift', `${(Math.random() * 30 - 15).toFixed(0)}px`);
+
+            document.body.appendChild(popup);
+
+            popup.addEventListener('animationend', () => popup.remove());
+        });
     </script>
 </body>
 </html>
