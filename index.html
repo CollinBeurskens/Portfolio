@@ -77,6 +77,37 @@
             cursor: none !important;
         }
 
+        /* ---------- Language Switcher (Flag only, top-right) ---------- */
+        .lang-switcher {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 6px; /* invisible padding for better touch/click target */
+            font-size: 1.5rem;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            cursor: none !important;
+            border-radius: 0;
+        }
+
+        .lang-btn:hover {
+            transform: scale(1.15);
+            opacity: 0.85;
+        }
+
+        .lang-btn:active {
+            transform: scale(0.95);
+        }
+
         /* ---------- Main Container ---------- */
         .container {
             width: 100%;
@@ -267,8 +298,6 @@
             object-fit: contain;
             -webkit-user-drag: none;
             user-select: none;
-
-            /* stop the iOS long-press preview menu */
             -webkit-touch-callout: none;
             pointer-events: none;
         }
@@ -391,6 +420,15 @@
                 bottom: 20px;
                 right: 20px;
             }
+
+            .lang-switcher {
+                top: 16px;
+                right: 16px;
+            }
+
+            .lang-btn {
+                font-size: 1.3rem;
+            }
         }
 
         /* ---------- Responsive: Small Mobile ---------- */
@@ -469,8 +507,13 @@
             opacity: 0;
         }
 
+        body:not(.loaded) .lang-switcher {
+            opacity: 0;
+        }
+
         .container,
-        .toto-container {
+        .toto-container,
+        .lang-switcher {
             transition: opacity 0.8s ease;
         }
 
@@ -481,35 +524,41 @@
     <div id="loader">
         <span>loading...</span>
     </div>
+
+    <!-- Language Switcher (Single Flag Toggle) -->
+    <div class="lang-switcher">
+        <button class="lang-btn" id="langBtn" aria-label="Toggle language">🇬🇧</button>
+    </div>
+
     <div class="container">
         <h1>Collin Beurskens</h1>
         
-        <div class="subtitle">UI/UX Developer</div>
+        <div class="subtitle" id="subtitle">UI/UX Developer</div>
         
         <div class="bio">
             <p id="bio-p1"></p>
             <p id="bio-p2"></p>
             
             <!-- Work with me Button -->
-            <a href="mailto:cmwjbeurskens@gmail.com" class="cta-button">Work with me</a>
+            <a href="mailto:cmwjbeurskens@gmail.com" class="cta-button" id="cta-button">Work with me</a>
         </div>
 
         <!-- Socials Section -->
         <div class="section">
-            <div class="section-title">Socials</div>
+            <div class="section-title" id="socials-title">Socials</div>
             <ul class="socials-list">
-                <li><a href="https://github.com/CollinBeurskens" target="_blank">GitHub</a></li>
-                <li><a href="https://x.com/collinotje" target="_blank">Twitter</a></li>
-                <li><a href="mailto:cmwjbeurskens@gmail.com">Email</a></li>
+                <li><a href="https://github.com/CollinBeurskens" target="_blank" id="social-github">GitHub</a></li>
+                <li><a href="https://x.com/collinotje" target="_blank" id="social-twitter">Twitter</a></li>
+                <li><a href="mailto:cmwjbeurskens@gmail.com" id="social-email">Email</a></li>
             </ul>
         </div>
 
         <!-- School Section -->
         <div class="section">
-            <div class="section-title">Education</div>
+            <div class="section-title" id="education-title">Education</div>
             <div class="experience-item">
-                <div class="role">HAVO – Year 3</div>
-                <div class="company">Trevianum</div>
+                <div class="role" id="edu-role">HAVO – Year 3</div>
+                <div class="company" id="edu-company">Trevianum</div>
                 <div class="date">2023/2024</div>
             </div>
         </div>
@@ -524,15 +573,71 @@
 
     <script>
 
+        /* ---------- Translations ---------- */
+        const translations = {
+            en: {
+                subtitle: "UI/UX Developer",
+                bioP1: (age) => `hey, im collin. im ${age} years old and i've been designing and building websites for around 2 years. i started out experimenting with HTML and CSS and gradually got more into web design and development.`,
+                bioP2: `i enjoy creating websites that look good, feel right and actually work well. im always working on new projects, trying things out and learning something new along the way.`,
+                cta: "Work with me",
+                socialsTitle: "Socials",
+                educationTitle: "Education",
+                eduRole: "HAVO – Year 3",
+                eduCompany: "Trevianum",
+                github: "GitHub",
+                twitter: "Twitter",
+                email: "Email",
+                btnFlag: "🇬🇧"
+            },
+            nl: {
+                subtitle: "UI/UX Ontwikkelaar",
+                bioP1: (age) => `hey, ik ben collin. ik ben ${age} jaar en ik ontwerp en bouw nu al zo'n 2 jaar websites. ik begon met experimenteren met HTML en CSS en raakte steeds meer geïnteresseerd in webdesign en ontwikkeling.`,
+                bioP2: `ik vind het leuk om websites te maken die er goed uitzien, goed aanvoelen en ook echt goed werken. ik ben altijd bezig met nieuwe projecten, dingen uitproberen en onderweg iets nieuws leren.`,
+                cta: "Werk met mij",
+                socialsTitle: "Socials",
+                educationTitle: "Opleiding",
+                eduRole: "HAVO – Leerjaar 3",
+                eduCompany: "Trevianum",
+                github: "GitHub",
+                twitter: "Twitter",
+                email: "E-mail",
+                btnFlag: "🇳🇱"
+            }
+        };
+
+        let currentLang = localStorage.getItem('preferredLanguage') || 'en';
+
+        function updateContent(lang) {
+            const t = translations[lang];
+            const age = getAge();
+            
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('bio-p1').textContent = t.bioP1(age);
+            document.getElementById('bio-p2').textContent = t.bioP2;
+            document.getElementById('cta-button').textContent = t.cta;
+            document.getElementById('socials-title').textContent = t.socialsTitle;
+            document.getElementById('education-title').textContent = t.educationTitle;
+            document.getElementById('edu-role').textContent = t.eduRole;
+            document.getElementById('edu-company').textContent = t.eduCompany;
+            document.getElementById('social-github').textContent = t.github;
+            document.getElementById('social-twitter').textContent = t.twitter;
+            document.getElementById('social-email').textContent = t.email;
+            document.getElementById('langBtn').textContent = t.btnFlag;
+            
+            document.documentElement.lang = lang;
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+        }
+
         /* ---------- Load & Fade In ---------- */
         window.addEventListener('load', async () => {
-            // Wait for Geist Pixel font, but don't hang forever
             await Promise.race([
                 document.fonts.ready,
                 new Promise(r => setTimeout(r, 2000))
             ]);
 
-            // Double rAF ensures the hidden state paints first, so the fade animates
+            updateContent(currentLang);
+
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     document.getElementById('loader').classList.add('fade-out');
@@ -541,7 +646,7 @@
             });
         });
 
-        /* ---------- Dynamic Age & Text Injection ---------- */
+        /* ---------- Dynamic Age ---------- */
         function getAge() {
             const birthDate = new Date('2010-12-29');
             const today = new Date();
@@ -553,18 +658,22 @@
             }
             return age;
         }
-        
-        const age = getAge();
-        
-        document.getElementById('bio-p1').textContent = `hey, im collin. im ${age} years old and i've been designing and building websites for around 2 years. i started out experimenting with HTML and CSS and gradually got more into web design and development.`;
-        document.getElementById('bio-p2').textContent = `i enjoy creating websites that look good, feel right and actually work well. im always working on new projects, trying things out and learning something new along the way.`;
+
+        /* ---------- Language Toggle Logic ---------- */
+        const langBtn = document.getElementById('langBtn');
+
+        langBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const newLang = currentLang === 'en' ? 'nl' : 'en';
+            updateContent(newLang);
+        });
 
         /* ---------- Disable right-click ---------- */
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
 
-        /* ---------- Prevent dragging of selected text or images ---------- */
+        /* ---------- Prevent dragging ---------- */
         document.addEventListener('dragstart', (e) => {
             e.preventDefault();
         });
@@ -582,14 +691,13 @@
             e.preventDefault();
         }, { passive: false });
 
-        /* ---------- Block pinch-zoom (two-finger touch) ---------- */
         document.addEventListener('touchmove', (e) => {
             if (e.touches.length > 1) {
                 e.preventDefault();
             }
         }, { passive: false });
 
-        /* ---------- Cursor Logic (only runs if not a touch device) ---------- */
+        /* ---------- Cursor Logic ---------- */
         const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
         if (!isTouchDevice) {
@@ -634,7 +742,6 @@
             }
             animateCursor();
 
-            /* ---------- Cursor Hover State Logic ---------- */
             const interactiveSelector = 'a, button, input, textarea, select, [role="button"]';
 
             document.addEventListener('mouseover', (e) => {
@@ -644,8 +751,6 @@
             });
 
             document.addEventListener('mouseout', (e) => {
-                // Only remove the hover class if we are truly leaving the interactive element 
-                // (and not just moving to a child element inside it)
                 if (!e.relatedTarget || !e.relatedTarget.closest(interactiveSelector)) {
                     cursor.classList.remove('hover');
                 }
