@@ -259,7 +259,6 @@
             pointer-events: auto;
             user-select: none;
             cursor: none;
-            touch-action: manipulation;
         }
 
         .toto-image {
@@ -607,16 +606,6 @@
 
         /* ---------- Toto Bark on Click ---------- */
         const barks = ['bark!', 'woof!', 'arf!', '*growling*', 'woof woof!', '*tail wag*', 'bork!', 'ruff!'];
-
-        let lastTap = 0;
-
-        document.querySelector('.toto-container').addEventListener('touchend', (e) => {
-            const now = Date.now();
-            if (now - lastTap < 350) {
-                e.preventDefault();
-            }
-            lastTap = now;
-        }, { passive: false });
 
         document.querySelector('.toto-container').addEventListener('click', () => {
             const popup = document.createElement('span');
