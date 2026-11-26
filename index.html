@@ -14,6 +14,9 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            /* Prevent dragging of any element (text, images, etc.) */
+            -webkit-user-drag: none;
+            user-drag: none;
         }
 
         /* Root level scrollbar hiding to prevent browser-level scrollbar bugs */
@@ -196,8 +199,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 32px;
-            height: 32px;
+            width: 48px; 
+            height: 48px; 
             background-image: url('images/cursor.png');
             background-size: contain;
             background-repeat: no-repeat;
@@ -206,10 +209,36 @@
             transform: translate(-50%, 0%);
             will-change: transform;
             display: block;
+            transition: background-image 0.1s ease; /* Smooth image swap */
+        }
+
+        /* Custom Cursor Hover State */
+        .custom-cursor.hover {
+            background-image: url('images/click.png');
         }
 
         .custom-cursor.hidden {
             display: none;
+        }
+
+        /* Toto Animation Container */
+        .toto-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 64px;
+            height: 64px;
+            z-index: 99998;
+            pointer-events: none; /* Prevents interference with custom cursor */
+            user-select: none;
+        }
+
+        .toto-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            -webkit-user-drag: none; /* Prevents dragging the image */
+            user-select: none;
         }
 
         /* ---------- Responsive: Tablet ---------- */
@@ -296,6 +325,14 @@
             .experience-item .date {
                 font-size: 0.9rem;
             }
+
+            /* Adjust Toto size slightly for mobile */
+            .toto-container {
+                width: 48px;
+                height: 48px;
+                bottom: 20px;
+                right: 20px;
+            }
         }
 
         /* ---------- Responsive: Small Mobile ---------- */
@@ -375,7 +412,7 @@
         <div class="section">
             <div class="section-title">Education</div>
             <div class="experience-item">
-                <div class="role">3 senior general secondary education</div>
+                <div class="role">HAVO – Year 3</div>
                 <div class="company">Trevianum</div>
                 <div class="date">2023/2024</div>
             </div>
@@ -383,6 +420,11 @@
     </div>
 
     <div class="custom-cursor" id="cursor"></div>
+
+    <!-- Toto Animation Element -->
+    <div class="toto-container">
+        <img src="images/Toto/1.svg" alt="Toto" id="toto-image" class="toto-image">
+    </div>
 
     <script>
         /* ---------- Dynamic Age & Text Injection ---------- */
@@ -405,6 +447,11 @@
 
         /* ---------- Disable right-click ---------- */
         document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        /* ---------- Prevent dragging of selected text or images ---------- */
+        document.addEventListener('dragstart', (e) => {
             e.preventDefault();
         });
 
@@ -452,7 +499,34 @@
                 requestAnimationFrame(animateCursor);
             }
             animateCursor();
+
+            /* ---------- Cursor Hover State Logic ---------- */
+            const interactiveSelector = 'a, button, input, textarea, select, [role="button"]';
+
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.closest(interactiveSelector)) {
+                    cursor.classList.add('hover');
+                }
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                // Only remove the hover class if we are truly leaving the interactive element 
+                // (and not just moving to a child element inside it)
+                if (!e.relatedTarget || !e.relatedTarget.closest(interactiveSelector)) {
+                    cursor.classList.remove('hover');
+                }
+            });
         }
+
+        /* ---------- Toto Animation Logic ---------- */
+        const totoImages = ['images/Toto/1.svg', 'images/Toto/2.svg'];
+        let totoIndex = 0;
+        const totoImageEl = document.getElementById('toto-image');
+        
+        setInterval(() => {
+            totoIndex = (totoIndex + 1) % totoImages.length;
+            totoImageEl.src = totoImages[totoIndex];
+        }, 300);
     </script>
 </body>
 </html>
